@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Scanpy Workshop Reference — Differential Expression &amp; Plots</title>
+<style>
+:root{
+  --bg: #ffffff;
+  --text: #2b2b2b;
+  --muted: #6b7280;
+  --accent: #2980b9;
+  --sidebar-bg: #f8fafc;
+  --border: #e5e7eb;
+  --code-bg: #f3f4f6;
+  --topbar-h: 64px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji", "Segoe UI Symbol";
+  color:var(--text);
+  background:var(--bg);
+  line-height:1.6;
+}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.rtd-container{
+  display:grid;
+  grid-template-columns: 380px 1fr;
+  min-height:100vh;
+}
+/* Sidebar */
+.rtd-sidebar{
+  position:sticky;
+  top:0;
+  align-self:start;
+  height:100vh;
+  overflow:auto;
+  padding:1.25rem 1rem 2rem 1.25rem;
+  background:var(--sidebar-bg);
+  border-right:1px solid var(--border);
+}
+.rtd-project{
+  font-size:1.25rem;
+  font-weight:700;
+  margin:0 0 .5rem 0;
+}
+.toc-root, .toc-root ul{
+  list-style:none;
+  margin:.25rem 0;
+  padding-left:.75rem;
+  border-left:2px solid var(--border);
+}
+.toc-root > li{margin:.25rem 0}
+.toc-root li a{
+  display:block;
+  padding:.25rem .25rem;
+  border-radius:.25rem;
+}
+.toc-root li a.active{
+  background:#eaf4ff;
+}
+/* Content */
+.rtd-content{
+  padding:2rem 2.25rem 4rem;
+  max-width: 980px;
+}
+/* Ensure anchors don't get hidden under sticky topbar */
+.rtd-content h1[id], .rtd-content h2[id], .rtd-content h3[id]{
+  scroll-margin-top: calc(var(--topbar-h) + 16px);
+}
+.rtd-content h1{font-size:2rem;margin-top:0;margin-bottom:.5rem}
+.rtd-content h2{font-size:1.5rem;margin-top:2rem;border-bottom:1px solid var(--border);padding-bottom:.25rem}
+.rtd-content h3{font-size:1.25rem;margin-top:1.25rem}
+.rtd-content blockquote{
+  margin:1rem 0;
+  padding:.75rem 1rem;
+  background:#f1f5f9;
+  border-left:4px solid #cbd5e1;
+}
+.rtd-content pre, .rtd-content code{
+  background:var(--code-bg);
+}
+.rtd-content pre{
+  padding:1rem;
+  overflow:auto;
+  border:1px solid var(--border);
+  border-radius:.375rem;
+}
+.rtd-content table{
+  width:100%;
+  border-collapse:collapse;
+  margin:1rem 0;
+  font-size:.95rem;
+}
+.rtd-content th, .rtd-content td{
+  border:1px solid var(--border);
+  padding:.5rem .75rem;
+  vertical-align:top;
+}
+/* Topbar mimic */
+.rtd-topbar{
+  display:flex;
+  align-items:center;
+  gap:.75rem;
+  padding: .75rem 1rem;
+  height: var(--topbar-h);
+  border-bottom:1px solid var(--border);
+  background: #ffffffcc;
+  backdrop-filter: saturate(150%) blur(4px);
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+.rtd-breadcrumbs{color:var(--muted);font-size:.9rem}
+@media (max-width: 900px){
+  .rtd-container{grid-template-columns: 1fr}
+  .rtd-sidebar{position:relative;height:auto;display:none}
+}
+</style>
+</head>
+<body>
+<div class="rtd-topbar">
+<div class="rtd-breadcrumbs">Scanpy Workshop Reference — Differential Expression &amp; Plots</div>
+</div>
+<div class="rtd-container">
+<aside class="rtd-sidebar">
+<div class="rtd-project">Scanpy Workshop Reference — Differential Expression &amp; Plots</div>
+<nav class="rtd-toc">
+<ul class="toc-root">
+<li><a href="#scanpy-workshop-reference--differential-expression--plots">Scanpy Workshop Reference — Differential Expression &amp; Plots</a></li>
+<ul>
+<li><a href="#1-sctlrank_genes_groupshttpsscanpyreadthedocsioenstablegeneratedscanpytlrank_genes_groupshtml">tl.rank_genes_groups</a></li>
+<li><a href="#2-scplrank_genes_groups_dotplothttpsscanpyreadthedocsioenstableapigeneratedscanpyplrank_genes_groups_dotplothtml">pl.rank_genes_groups_dotplot</a></li>
+<li><a href="#3-scplrank_genes_groups_matrixplothttpsscanpyreadthedocsioen111xapigeneratedscanpyplrank_genes_groups_matrixplothtml">pl.rank_genes_groups_matrixplot</a></li>
+<li><a href="#4-scppscalehttpsscanpyreadthedocsioenstablegeneratedscanpyppscalehtml">pp.scale</a></li>
+<li><a href="#5-scplrank_genes_groups_stacked_violinhttpsscanpyreadthedocsioenlatestapigeneratedscanpyplrank_genes_groups_stacked_violinhtml">pl.rank_genes_groups_stacked_violin</a></li>
+<li><a href="#6-scplrank_genes_groups_heatmaphttpsscanpyreadthedocsioen111xapigeneratedscanpyplrank_genes_groups_heatmaphtml">pl.rank_genes_groups_heatmap</a></li>
+<li><a href="#7-scplrank_genes_groups_tracksplothttpsscanpyreadthedocsioenlatestapigeneratedscanpyplrank_genes_groups_tracksplothtml">pl.rank_genes_groups_tracksplot</a></li>
+<li><a href="#8-scplcorrelation_matrixhttpsscanpyreadthedocsioen111xapigeneratedscanpyplcorrelation_matrixhtml">correlation_matrix</a></li>
+<li><a href="#9-scplumaphttpsscanpyreadthedocsioenlatestapigeneratedscanpyplumaphtml">pl.umap</a></li>
+<li><a href="#10-scpldotplothttpsscanpyreadthedocsioenstablegeneratedscanpypldotplothtml">pl.dotplot</a></li>
+<li><a href="#11-scplviolinhttpsscanpyreadthedocsioenstablegeneratedscanpyplviolinhtml">pl.violin</a></li>
+<li><a href="#12-scset_figure_paramshttpsscanpyreadthedocsioenstablegeneratedscanpyset_figure_paramshtml">set_figure_params</a></li>
+<li><a href="#13-sctlembedding_densityhttpsscanpyreadthedocsioenstablegeneratedscanpytlembedding_densityhtml">tl.embedding_density</a></li><li><a href="#14-scplembedding_densityhttpsscanpyreadthedocsioenstableapigeneratedscanpyplembedding_densityhtml">pl.embedding_density</a></li><ul>
+<li><a href="#notes-on-layers--scaling">Notes on layers &amp; scaling</a></li>
+<li><a href="#practical-tips">Practical tips</a></li>
+</ul>
+</ul>
+</ul>
+</nav>
+</aside>
+<main class="rtd-content">
+<div class="crossnote markdown-preview">
+<h1 id="scanpy-workshop-reference--differential-expression--plots">Scanpy Workshop Reference — Differential Expression &amp; Plots </h1>
+<blockquote>
+<p><strong>Note:</strong> Every function below expects an <code>AnnData</code> object (<code>adata</code>) as the first positional argument. For brevity, <code>adata</code> is omitted in the parameter lists. Only parameters that are <strong>used in our notebook</strong> are shown. 
+</p>
+</blockquote>
+<hr/>
+<h2 id="1-sctlrank_genes_groupshttpsscanpyreadthedocsioenstablegeneratedscanpytlrank_genes_groupshtml">1) <a href="https://scanpy.readthedocs.io/en/stable/generated/scanpy.tl.rank_genes_groups.html"><code>sc.tl.rank_genes_groups(...)</code></a> </h2>
+<p><strong>What it does:</strong> Differential expression analysis across groups. Ranks genes for each category in a grouping using a statistical test and stores results in <code>adata.uns['rank_genes_groups']</code>. All <code>sc.pl.rank_genes_groups</code> commands (plotting) require the output of this <code>sc.tl</code> function.</p>
+<p><strong>Parameters (used here)</strong></p>
+<ul>
+<li><strong>Required</strong>
+<ul>
+<li><code>groupby</code> (<code>str</code>): Categorical key in <code>.obs</code> that defines the groups to compare.</li>
+</ul>
+</li>
+<li><strong>Optional</strong>
+<ul>
+<li><code>method</code> (<code>str</code>): Statistical test to use (e.g., <code>'wilcoxon'</code>).</li>
+<li><code>layer</code> (<code>str | None</code>): Name of the matrix in <code>.layers</code> to use instead of <code>.X</code>.</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h2 id="2-scplrank_genes_groups_dotplothttpsscanpyreadthedocsioenstableapigeneratedscanpyplrank_genes_groups_dotplothtml">2) <a href="https://scanpy.readthedocs.io/en/stable/api/generated/scanpy.pl.rank_genes_groups_dotplot.html"><code>sc.pl.rank_genes_groups_dotplot(...)</code></a> </h2>
+<p><strong>What it does:</strong> Dot plot of the top markers per group; dot <strong>color</strong> encodes a value (e.g., LFC) and dot <strong>size</strong> encodes the fraction of cells expressing the gene. Requires the output generated from <code>sc.tl.rank_genes_groups</code>.</p>
+<p><strong>Parameters (used here)</strong></p>
+<ul>
+<li><strong>Required</strong>
+<ul>
+<li>—</li>
+</ul>
+</li>
+<li><strong>Optional</strong>
+<ul>
+<li><code>n_genes</code> (<code>int</code>): Number of top genes to plot per group.</li>
+<li><code>values_to_plot</code> (<code>str</code>): What to color by (e.g., <code>'logfoldchanges'</code>).</li>
+<li><code>min_logfoldchange</code> (<code>float | None</code>): Filter out genes below this log‑fold change.</li>
+<li><code>groups</code> (<code>str | Sequence[str] | None</code>): Restrict to selected groups.</li>
+<li><code>vmin</code>, <code>vmax</code> (<code>float | None</code>): Lower/upper color scale limits.</li>
+<li><code>cmap</code> (<code>str</code>): Colormap for the dot colors (e.g., <code>'bwr'</code>).</li>
+<li><code>dot_max</code> (<code>float</code>): Scales the largest dot size.</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h2 id="3-scplrank_genes_groups_matrixplothttpsscanpyreadthedocsioen111xapigeneratedscanpyplrank_genes_groups_matrixplothtml">3) <a href="https://scanpy.readthedocs.io/en/1.11.x/api/generated/scanpy.pl.rank_genes_groups_matrixplot.html"><code>sc.pl.rank_genes_groups_matrixplot(...)</code></a> </h2>
+<p><strong>What it does:</strong> Heatmap‑like view showing (by default) mean values per group for the top markers.</p>
+<p><strong>Parameters (used here)</strong></p>
+<ul>
+<li><strong>Required</strong>
+<ul>
+<li>—</li>
+</ul>
+</li>
+<li><strong>Optional</strong>
+<ul>
+<li><code>n_genes</code> (<code>int</code>): Number of top genes to include.</li>
+<li><code>min_logfoldchange</code> (<code>float | None</code>): Include only markers above this LFC threshold.</li>
+<li><code>layer</code> (<code>str | None</code>): Which <code>.layers[...]</code> matrix to visualize instead of <code>.X</code>.</li>
+<li><code>standard_scale</code> (<code>'var'</code>): Rescale values to 0–1 <strong>per gene/column</strong>.</li>
+<li><code>colorbar_title</code> (<code>str</code>): Title for the color bar (line breaks like <code>\n</code> are supported).</li>
+<li><code>vmin</code>, <code>vmax</code> (<code>float | None</code>): Color scale limits.</li>
+<li><code>cmap</code> (<code>str</code>): Colormap for the cells in the matrix.</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h2 id="4-scppscalehttpsscanpyreadthedocsioenstablegeneratedscanpyppscalehtml">4) <a href="https://scanpy.readthedocs.io/en/stable/generated/scanpy.pp.scale.html"><code>sc.pp.scale(...)</code></a> </h2>
+<p><strong>What it does:</strong> Standardizes genes to zero mean and unit variance (z‑score).</p>
+<p><strong>Parameters (used here)</strong></p>
+<ul>
+<li><strong>Required</strong>
+<ul>
+<li>—</li>
+</ul>
+</li>
+<li><strong>Optional</strong>
+<ul>
+<li><code>copy</code> (<code>bool</code>): If <code>True</code>, return a new scaled object/array; we used this to create a scaled copy of <code>.X</code> and store it into <code>adata.layers["scaled"]</code>.</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h2 id="5-scplrank_genes_groups_stacked_violinhttpsscanpyreadthedocsioenlatestapigeneratedscanpyplrank_genes_groups_stacked_violinhtml">5) <a href="https://scanpy.readthedocs.io/en/latest/api/generated/scanpy.pl.rank_genes_groups_stacked_violin.html"><code>sc.pl.rank_genes_groups_stacked_violin(...)</code></a> </h2>
+<p><strong>What it does:</strong> Stacked violin plots for the top markers per group, with a colorbar for summary values.</p>
+<p><strong>Parameters (used here)</strong></p>
+<ul>
+<li><strong>Required</strong>
+<ul>
+<li>—</li>
+</ul>
+</li>
+<li><strong>Optional</strong>
+<ul>
+<li><code>n_genes</code> (<code>int</code>): Number of markers to display.</li>
+<li><code>min_logfoldchange</code> (<code>float | None</code>): Filter low‑LFC markers.</li>
+<li><code>dendrogram</code> (<code>bool</code>): Whether to display and use a dendrogram for ordering.</li>
+<li><code>cmap</code> (<code>str</code>): Colormap for the colorbar.</li>
+<li><code>layer</code> (<code>str | None</code>): Matrix from <code>.layers</code> to plot instead of <code>.X</code>.</li>
+<li><code>colorbar_title</code> (<code>str</code>): Title for the colorbar.</li>
+<li><code>figsize</code> (<code>tuple[float, float]</code>): Figure size.</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h2 id="6-scplrank_genes_groups_heatmaphttpsscanpyreadthedocsioen111xapigeneratedscanpyplrank_genes_groups_heatmaphtml">6) <a href="https://scanpy.readthedocs.io/en/1.11.x/api/generated/scanpy.pl.rank_genes_groups_heatmap.html"><code>sc.pl.rank_genes_groups_heatmap(...)</code></a> </h2>
+<p><strong>What it does:</strong> Expression heatmap of the top markers per group.</p>
+<p><strong>Parameters (used here)</strong></p>
+<ul>
+<li><strong>Required</strong>
+<ul>
+<li>—</li>
+</ul>
+</li>
+<li><strong>Optional</strong>
+<ul>
+<li><code>n_genes</code> (<code>int</code>): Number of top markers to show per group.</li>
+<li><code>min_logfoldchange</code> (<code>float | None</code>): Only markers above this LFC.</li>
+<li><code>layer</code> (<code>str | None</code>): Which <code>.layers[...]</code> matrix to plot instead of <code>.X</code>.</li>
+<li><code>figsize</code> (<code>tuple[float, float]</code>): Figure size (width, height).</li>
+<li><code>swap_axes</code> (<code>bool</code>): Swap rows/columns (groups vs. genes).</li>
+<li><code>show_gene_labels</code> (<code>bool</code>): Toggle gene name labels.</li>
+<li><code>vmin</code>, <code>vmax</code> (<code>float | None</code>): Color scale limits.</li>
+<li><code>cmap</code> (<code>str</code>): Colormap for the heatmap.</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h2 id="7-scplrank_genes_groups_tracksplothttpsscanpyreadthedocsioenlatestapigeneratedscanpyplrank_genes_groups_tracksplothtml">7) <a href="https://scanpy.readthedocs.io/en/latest/api/generated/scanpy.pl.rank_genes_groups_tracksplot.html"><code>sc.pl.rank_genes_groups_tracksplot(...)</code></a> </h2>
+<p><strong>What it does:</strong> Track‑style panels showing selected markers per group (one gene per row).</p>
+<p><strong>Parameters (used here)</strong></p>
+<ul>
+<li><strong>Required</strong>
+<ul>
+<li>—</li>
+</ul>
+</li>
+<li><strong>Optional</strong>
+<ul>
+<li><code>n_genes</code> (<code>int</code>): Number of markers to display.</li>
+<li><code>min_logfoldchange</code> (<code>float | None</code>): Filter low‑LFC markers.</li>
+<li><code>layer</code> (<code>str | None</code>): Matrix from <code>.layers</code> to visualize instead of <code>.X</code>.</li>
+<li><code>figsize</code> (<code>tuple[float, float]</code>): Figure size.</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h2 id="8-scplcorrelation_matrixhttpsscanpyreadthedocsioen111xapigeneratedscanpyplcorrelation_matrixhtml">8) <a href="https://scanpy.readthedocs.io/en/1.11.x/api/generated/scanpy.pl.correlation_matrix.html"><code>sc.pl.correlation_matrix(...)</code></a> </h2>
+<p><strong>What it does:</strong> Plots the correlation matrix between categories defined by a <code>groupby</code> key.</p>
+<p><strong>Parameters (used here)</strong></p>
+<ul>
+<li><strong>Required</strong>
+<ul>
+<li><code>groupby</code> (<code>str</code>): Categorical column defining the categories to correlate.</li>
+</ul>
+</li>
+<li><strong>Optional</strong>
+<ul>
+<li><code>cmap</code> (<code>str</code>): Colormap for the heatmap.</li>
+<li><code>figsize</code> (<code>tuple[float, float]</code>): Figure size.</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h2 id="9-scplumaphttpsscanpyreadthedocsioenlatestapigeneratedscanpyplumaphtml">9) <a href="https://scanpy.readthedocs.io/en/latest/api/generated/scanpy.pl.umap.html"><code>sc.pl.umap(...)</code></a> </h2>
+<p><strong>What it does:</strong> 2‑D scatter of <code>adata.obsm['X_umap']</code>, colored by annotations or expression.</p>
+<p><strong>Parameters (used here)</strong></p>
+<ul>
+<li><strong>Required</strong>
+<ul>
+<li>—</li>
+</ul>
+</li>
+<li><strong>Optional</strong>
+<ul>
+<li><code>color</code> (<code>str | Sequence[str]</code>): What to color points by (obs/var names or values).</li>
+<li><code>vmax</code> (<code>float | str | None</code>): Upper color limit; percentile strings like <code>"p99"</code> are supported.</li>
+<li><code>layer</code> (<code>str | None</code>): Which <code>.layers[...]</code> matrix to use for coloring (when coloring by expression).</li>
+<li><code>s</code> (<code>float</code>): Point size — Matplotlib’s <code>scatter</code> kwarg forwarded by Scanpy.</li>
+<li><code>frameon</code> (<code>bool</code>): Whether to draw an axes frame.</li>
+<li><code>ncols</code> (<code>int</code>): Number of columns when plotting multiple panels.</li>
+<li><code>size</code> (<code>float</code>): Point size (marker area).</li><li><code>legend_loc</code> (<code>str</code>): Legend location (e.g., <code>'on data'</code>, <code>'right margin'</code>).</li><li><code>legend_fontoutline</code> (<code>int | float</code>): Outline width for legend text.</li><li><code>legend_fontsize</code> (<code>int | str</code>): Legend font size.</li><li><code>palette</code> (<code>str</code>): Color palette for categorical colors.</li><li><code>add_outline</code> (<code>bool</code>): Draw an outline around points.</li><li><code>title</code> (<code>str</code>): Figure title.</li></ul>
+</li>
+</ul>
+<hr/>
+<h2 id="10-scpldotplothttpsscanpyreadthedocsioenstablegeneratedscanpypldotplothtml">10) <a href="https://scanpy.readthedocs.io/en/stable/generated/scanpy.pl.dotplot.html"><code>sc.pl.dotplot(...)</code></a> </h2>
+<p><strong>What it does:</strong> Generic dot plot of genes across categories; dot color shows mean (or supplied) values and dot size shows the fraction of cells expressing the gene.</p>
+<p><strong>Parameters (used here)</strong></p>
+<ul>
+<li><strong>Required</strong>
+<ul>
+<li><code>var_names</code> (<code>Sequence[str] | Mapping[str, Sequence[str]]</code>): List of genes to plot.</li>
+<li><code>groupby</code> (<code>str</code>): Categorical variable defining the groups (<code>.obs</code> column).</li>
+</ul>
+</li>
+<li><strong>Optional</strong>
+<ul>
+<li><code>dendrogram</code> (<code>bool</code>): Display a dendrogram and reorder categories accordingly.</li>
+<li><code>layer</code> (<code>str | None</code>): Which <code>.layers[...]</code> matrix to draw from instead of <code>.X</code>.</li>
+<li><code>dot_max</code> (<code>float</code>): Scales maximum dot size used for the fraction metric.</li>
+<li><code>figsize</code> (<code>tuple[float, float]</code>): Figure size.</li>
+<li><code>vmin</code>, <code>vmax</code> (<code>float | None</code>): Color scale limits.</li>
+<li><code>cmap</code> (<code>str</code>): Colormap for the dots.</li>
+<li><code>colorbar_title</code> (<code>str</code>): Title for the color legend.</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h2 id="11-scplviolinhttpsscanpyreadthedocsioenstablegeneratedscanpyplviolinhtml">11) <a href="https://scanpy.readthedocs.io/en/stable/generated/scanpy.pl.violin.html"><code>sc.pl.violin(...)</code></a> </h2>
+<p><strong>What it does:</strong> Violin plots of values (e.g., expression) across categories.</p>
+<p><strong>Parameters (used here)</strong></p>
+<ul>
+<li><strong>Required</strong>
+<ul>
+<li><code>keys</code> (<code>str | Sequence[str]</code>): Variables to plot (genes or obs columns).</li>
+</ul>
+</li>
+<li><strong>Optional</strong>
+<ul>
+<li><code>groupby</code> (<code>str | None</code>): Categorical variable defining the x‑axis categories.</li>
+<li><code>rotation</code> (<code>float | None</code>): Rotate x‑tick labels (e.g., <code>90</code>) to avoid overlap.</li>
+<li><code>layer</code> (<code>str | None</code>): Which <code>.layers[...]</code> matrix to plot instead of <code>.X</code>.</li>
+<li><code>stripplot</code> (<code>bool</code>): Add/remove overlaid jittered points.</li>
+<li><code>inner</code> (<code>str</code>): Layout of inner marks (e.g., <code>"box"</code>).</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h2 id="12-scset_figure_paramshttpsscanpyreadthedocsioenstablegeneratedscanpyset_figure_paramshtml">12) <a href="https://scanpy.readthedocs.io/en/stable/generated/scanpy.set_figure_params.html"><code>sc.set_figure_params(...)</code></a> </h2>
+<p><strong>What it does:</strong> Sets global Matplotlib/Scanpy figure parameters for subsequent plots.</p>
+<p><strong>Parameters (used here)</strong></p>
+<ul>
+<li><strong>Required</strong>
+<ul>
+<li>—</li>
+</ul>
+</li>
+<li><strong>Optional</strong>
+<ul>
+<li><code>figsize</code> (<code>tuple[float, float]</code>): Default figure size for upcoming plots.</li>
+<li><code>dpi</code> (<code>int</code>): Rendering DPI for figures.</li><li><code>fontsize</code> (<code>int</code>): Base font size.</li><li><code>facecolor</code> (<code>str</code>): Figure background color.</li><li><code>color_map</code> (<code>str</code>): Default colormap for continuous values.</li></ul>
+</li>
+</ul>
+<hr/>
+
+<h2 id="13-sctlembedding_densityhttpsscanpyreadthedocsioenstablegeneratedscanpytlembedding_densityhtml">13) <a href="https://scanpy.readthedocs.io/en/stable/generated/scanpy.tl.embedding_density.html"><code>sc.tl.embedding_density(...)</code></a> </h2>
+<p><strong>What it does:</strong> Calculates the density of cells in an embedded space (e.g., UMAP), optionally per category.</p>
+<p><strong>Parameters (used here)</strong></p>
+<ul>
+<li><strong>Required</strong>
+<ul>
+<li>—</li>
+</ul>
+</li>
+<li><strong>Optional</strong>
+<ul>
+<li><code>basis</code> (<code>str</code>): Embedding to use (e.g., <code>'umap'</code>).</li>
+<li><code>groupby</code> (<code>str</code>): Categorical observation to compute densities per category.</li>
+<li><code>key_added</code> (<code>str</code>): Name of the <code>.obs</code> column that will be added with the densiy estimates.</li>
+</ul>
+</li>
+</ul>
+<hr/>
+
+<h2 id="14-scplembedding_densityhttpsscanpyreadthedocsioenstableapigeneratedscanpyplembedding_densityhtml">14) <a href="https://scanpy.readthedocs.io/en/stable/api/generated/scanpy.pl.embedding_density.html"><code>sc.pl.embedding_density(...)</code></a> </h2>
+<p><strong>What it does:</strong> Plots the density of cells in an embedding (from <code>sc.tl.embedding_density</code>).</p>
+<p><strong>Parameters (used here)</strong></p>
+<ul>
+<li><strong>Required</strong>
+<ul>
+<li><code>key</code> (<code>str</code>): Key produced by <code>sc.tl.embedding_density</code> selecting which density to plot.</li>
+</ul>
+</li>
+<li><strong>Optional</strong>
+<ul>
+<li><code>basis</code> (<code>str</code>): Embedding to use (e.g., <code>'umap'</code>).</li>
+<li><code>ncols</code> (<code>int</code>): Number of panels per row.</li>
+<li><code>s</code> (<code>float</code>): Point size (useful when few cells per category).</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h3 id="notes-on-layers--scaling">Notes on layers &amp; scaling</h3>
+<ul>
+  <li><strong>Which matrix gets plotted?</strong> Plotting functions use, in order of precedence: 
+    <code>layer</code> (if provided) → <code>.raw.X</code> (if <code>use_raw=True</code> and <code>adata.raw</code> exists) → <code>.X</code>. 
+    In Scanpy’s embedding/matrix/dot/violin plotters, <code>layer</code> explicitly overrides <code>use_raw</code>. 
+    <em>Why it matters:</em> your figures should reflect the same transformed values you analyzed. 
+    <span>References: scanpy.pl.umap / .embedding / .matrixplot / .dotplot docs (layer vs use_raw precedence).</span>
+  </li>
+  <li><strong>Keep transformations consistent.</strong> If DE was computed on a log‑transformed matrix (e.g., a <code>'log1p'</code> layer), color your plots from the same layer to avoid mismatched scales. 
+    <span>Reference: Scanpy plotting functions accept <code>layer=...</code> specifically for this purpose.</span>
+  </li>
+  <li><strong>Z‑scores are for visualization, not counts.</strong> <code>sc.pp.scale</code> standardizes each feature (zero mean, unit variance). Store it in a named layer (e.g., <code>adata.layers["scaled"]</code>) so you can plot z‑scores without overwriting <code>.X</code>. Consider <code>max_value=10</code> to clip extreme values for cleaner heatmaps. 
+    <span>References: <code>sc.pp.scale</code> docs (zero‑center, <code>max_value</code> clip).</span>
+  </li>
+  <li><strong>Understand “standard_scale”.</strong> In matrix/dot/stacked‑violin plots, <code>standard_scale='var'</code> rescales each gene to 0–1 <em>within that gene</em> (compare patterns across groups, not between genes). <code>standard_scale='group'</code> instead rescales per group. 
+    <span>Reference: dot/matrixplot docs on <code>standard_scale</code>.</span>
+</ul>
+<h3 id="practical-tips">Practical tips</h3>
+<ul>
+  <li><strong>Colormap choices that read well.</strong> Use perceptually uniform sequential maps (e.g., <code>viridis</code>, <code>cividis</code>) for expression levels, and a diverging map (e.g., <code>bwr</code>) for signed values like log‑fold‑changes with symmetric <code>vmin</code>/<code>vmax</code> around 0. 
+    <span>Reference: Matplotlib guidance on perceptually uniform colormaps.</span>
+  </li>
+  <li><strong>Clip by percentile to reduce outliers.</strong> For continuous colors on UMAPs, set <code>vmax="p99"</code> (or similar) so a few bright cells don’t wash out the rest; you can also pass per‑panel lists when plotting multiple panels. 
+    <span>References: <code>vmin</code>/<code>vmax</code> percentile strings in Scanpy embedding/UMAP docs.</span>
+  </li>
+  <li><strong>Legends that stay readable.</strong> With few categories and separated clusters, <code>legend_loc="on data"</code> is compact; otherwise prefer <code>"right margin"</code>. Use <code>legend_fontsize</code> and <code>legend_fontoutline</code> to improve readability on busy backgrounds. 
+    <span>Reference: UMAP/embedding legend options.</span>
+  </li>
+  <li><strong>Reproducible UMAPs.</strong> UMAP is stochastic; set a fixed <code>random_state</code> (when computing the embedding with <code>sc.tl.umap</code>) to make layouts reproducible across runs. 
+    <span>Reference: UMAP reproducibility notes.</span>
+  </li>
+  <li><strong>Point size vs. cell count.</strong> Increase <code>size</code>/<code>s</code> when you have few cells (e.g., per‑patient densities) and decrease when plotting many cells to avoid overplotting. 
+    <span>Reference: Scanpy UMAP API supports <code>size</code>/<code>s</code> to control marker area.</span>
+  </li>
+</ul>
+
+</div>
+</main>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const links = Array.from(document.querySelectorAll('.toc-root a'));
+  const headings = links.map(a => document.getElementById(a.getAttribute('href').slice(1))).filter(Boolean);
+
+  // Smooth scrolling
+  links.forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const id = a.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({behavior: 'smooth', block: 'start'});
+        history.replaceState(null, '', '#'+id);
+      }
+    });
+  });
+
+  const onScroll = () => {
+    let idx = 0;
+    for (let i = 0; i < headings.length; i++) {
+      const rect = headings[i].getBoundingClientRect();
+      if (rect.top < 100) idx = i;
+    }
+    links.forEach(l => l.classList.remove('active'));
+    if (links[idx]) links[idx].classList.add('active');
+  };
+  document.addEventListener('scroll', onScroll, {passive: true});
+  onScroll();
+});
+</script>
+</body>
+</html>
